@@ -102,36 +102,94 @@ def get_commit_info(commit_hash: str) -> Tuple[str, str, str]:
 
 def rewrite_commit_message(commit_hash: str, new_message: str) -> bool:
     """Rewrite the commit message for a given commit hash using git rebase."""
+    message_file = None
+    script_path = None
+    
     try:
+        print(f"Preparing to rewrite commit message for {commit_hash[:7]}...")
+        
+        # Create a temporary file for the commit message
+        message_file = os.path.join(os.getcwd(), ".git", "COMMIT_MSG")
+        with open(message_file, "w") as f:
+            f.write(new_message)
+        print(f"Commit message saved to temporary file: {message_file}")
+        
         # Create a temporary script for the rebase
         script_path = os.path.join(os.getcwd(), ".git", "rewrite-message.sh")
         with open(script_path, "w") as f:
             f.write(f"""#!/bin/sh
-git commit --amend -m "{new_message}" --no-edit
+git commit --amend -F "{message_file}" --no-edit
 """)
         os.chmod(script_path, 0o755)
+        print(f"Rebase script created: {script_path}")
         
         # Start an interactive rebase
-        subprocess.run(
+        print(f"Starting interactive rebase for commit {commit_hash[:7]}...")
+        result = subprocess.run(
             ["git", "rebase", "-i", f"{commit_hash}^", "--exec", script_path],
             check=True,
+            capture_output=True,
+            text=True
         )
         
-        # Clean up
-        os.remove(script_path)
+        if result.stdout:
+            print(f"Rebase output: {result.stdout}")
         
+        # Clean up
+        print("Cleaning up temporary files...")
+        if os.path.exists(script_path):
+            os.remove(script_path)
+        if os.path.exists(message_file):
+            os.remove(message_file)
+        
+        print(f"Successfully rewrote commit message for {commit_hash[:7]}")
         return True
     
     except subprocess.CalledProcessError as e:
-        print(f"Git rebase error: {e}")
+        print(f"Git rebase error (exit code {e.returncode}):")
+        if e.stdout:
+            print(f"Standard output: {e.stdout}")
+        if e.stderr:
+            print(f"Standard error: {e.stderr}")
+        
         # Try to abort the rebase if it failed
+        print("Attempting to abort the rebase...")
         try:
-            subprocess.run(["git", "rebase", "--abort"], check=False)
-        except:
-            pass
+            abort_result = subprocess.run(
+                ["git", "rebase", "--abort"],
+                capture_output=True,
+                text=True
+            )
+            if abort_result.returncode == 0:
+                print("Rebase aborted successfully")
+            else:
+                print(f"Failed to abort rebase: {abort_result.stderr}")
+        except Exception as abort_error:
+            print(f"Error aborting rebase: {abort_error}")
+        
+        # Clean up any temporary files
+        try:
+            if script_path and os.path.exists(script_path):
+                os.remove(script_path)
+            if message_file and os.path.exists(message_file):
+                os.remove(message_file)
+        except OSError as cleanup_error:
+            print(f"Error cleaning up temporary files: {cleanup_error}")
+        
         return False
+    
     except Exception as e:
-        print(f"Error rewriting commit message: {e}")
+        print(f"Unexpected error rewriting commit message: {e}")
+        
+        # Clean up any temporary files
+        try:
+            if script_path and os.path.exists(script_path):
+                os.remove(script_path)
+            if message_file and os.path.exists(message_file):
+                os.remove(message_file)
+        except OSError:
+            pass  # Ignore cleanup errors at this point
+        
         return False
 
 
