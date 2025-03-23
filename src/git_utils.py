@@ -21,6 +21,28 @@ def is_git_repo() -> bool:
         return False
 
 
+def get_first_n_commits(n: int) -> List[str]:
+    """Get the first N commits in the repository (oldest first)."""
+    try:
+        repo = git.Repo(os.getcwd())
+        
+        # Get all commits
+        all_commits = list(repo.iter_commits('HEAD'))
+        
+        # The last ones in the list are the oldest (first) commits
+        first_n = all_commits[-n:] if len(all_commits) >= n else all_commits
+        
+        # Reverse to process from oldest to newest
+        return [commit.hexsha for commit in reversed(first_n)]
+    
+    except git.GitCommandError as e:
+        print(f"Git error: {e}")
+        return []
+    except Exception as e:
+        print(f"Error getting first {n} commits: {e}")
+        return []
+
+
 def get_commit_range(args: Any, config: Dict[str, Any]) -> List[str]:
     """Get the range of commits to process based on command line arguments."""
     try:
@@ -32,6 +54,11 @@ def get_commit_range(args: Any, config: Dict[str, Any]) -> List[str]:
             count = args.count
             commits = list(repo.iter_commits('HEAD', max_count=count))
             return [commit.hexsha for commit in commits]
+        
+        elif args.command == "first":
+            # Handle 'first N' commits
+            count = args.count
+            return get_first_n_commits(count)
         
         elif args.command == ".":
             # Handle current branch
@@ -240,20 +267,24 @@ def rewrite_past_commit(commit_hash: str, new_message: str) -> bool:
         # Check if this is the root commit (first commit in the repository)
         is_root = is_root_commit(commit_hash)
         
-        # For root commits, we need to use --root instead of commit_hash^..HEAD
+        # Prepare the filter-branch command
+        filter_branch_cmd = [
+            "git", "filter-branch", "--force", "--msg-filter", 
+            filter_cmd
+        ]
+        
+        # For root commits, we need to use a different approach
         if is_root:
-            print(f"Detected root commit {commit_hash[:7]}, using --root")
-            range_arg = "--root"
+            print(f"Detected root commit {commit_hash[:7]}, using special root handling")
+            # For root commits, we need to use -- --all
+            filter_branch_cmd.extend(["--", "--all"])
         else:
-            range_arg = f"{commit_hash}^..HEAD"
+            # For non-root commits, use the specific range
+            filter_branch_cmd.extend([f"{commit_hash}^..HEAD"])
         
         # Use git filter-branch to rewrite the message (non-interactive)
         result = subprocess.run(
-            [
-                "git", "filter-branch", "--force", "--msg-filter", 
-                filter_cmd,
-                range_arg
-            ],
+            filter_branch_cmd,
             check=True,
             capture_output=True,
             text=True

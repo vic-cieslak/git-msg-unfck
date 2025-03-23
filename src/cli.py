@@ -26,9 +26,13 @@ def parse_args(args: List[str]) -> argparse.Namespace:
     # "last" command for processing last N commits
     last_parser = subparsers.add_parser("last", help="Process the last N commits")
     last_parser.add_argument("count", type=int, help="Number of commits to process")
+    
+    # "first" command for processing first N commits
+    first_parser = subparsers.add_parser("first", help="Process the first N commits (oldest first)")
+    first_parser.add_argument("count", type=int, help="Number of commits to process")
 
-    # Add common options to both subparsers
-    for subparser in [current_parser, last_parser]:
+    # Add common options to all subparsers
+    for subparser in [current_parser, last_parser, first_parser]:
         # Branch options
         branch_group = subparser.add_mutually_exclusive_group()
         branch_group.add_argument(

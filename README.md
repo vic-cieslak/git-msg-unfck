@@ -68,6 +68,12 @@ poetry run unfck . --just-fix-it
 poetry run unfck last 2
 ```
 
+### Process first N commits (oldest first)
+
+```bash
+poetry run unfck first 5
+```
+
 ### With specific model
 
 ```bash
