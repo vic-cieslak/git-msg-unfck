@@ -6,17 +6,31 @@
 
 ## 📦 Installation
 
-### Using pip (Recommended)
+### Quick Installation (Recommended)
 
 ```bash
-# Install from PyPI
-pip install git-msg-unfck
+# Clone the repository
+git clone https://github.com/yourusername/git-msg-unfck.git
+cd git-msg-unfck
 
-# Or with user installation
-pip install --user git-msg-unfck
+# Install Poetry if you don't have it
+curl -sSL https://install.python-poetry.org | python3 -
+
+# Build the package
+poetry build
+
+# Install the built package
+pip install dist/git_msg_unfck-0.1.0.tar.gz
 ```
 
 After installation, the `unfck` command will be available in your terminal.
+
+### Future PyPI Installation (Coming Soon)
+
+```bash
+# This method is not yet available
+pip install git-msg-unfck
+```
 
 ---
 
@@ -43,55 +57,35 @@ After installation, the `unfck` command will be available in your terminal.
 
 ## 🚀 Quick Usage
 
-### Installation from Source (Development)
-
-```bash
-# Install Poetry if you don't have it
-curl -sSL https://install.python-poetry.org | python3 -
-
-# Clone the repository
-git clone https://github.com/yourusername/git-msg-unfck.git
-cd git-msg-unfck
-
-# Install dependencies
-poetry install
-
-# Activate the Poetry shell (optional)
-poetry shell
-```
-
 ### Interactive dry-run mode (default)
 
 ```bash
-# Within Poetry shell
+# Process all commits in the current branch
 unfck .
-
-# Or without activating the shell
-poetry run unfck .
 ```
 
 ### No confirmation, just rewrite
 
 ```bash
-poetry run unfck . --just-fix-it
+unfck . --just-fix-it
 ```
 
 ### Only fix last N commits
 
 ```bash
-poetry run unfck last 2
+unfck last 2
 ```
 
 ### Process first N commits (oldest first)
 
 ```bash
-poetry run unfck first 5
+unfck first 5
 ```
 
 ### With specific model
 
 ```bash
-poetry run unfck last 1 --model gpt-4
+unfck last 1 --model gpt-4
 ```
 
 ### Available models
@@ -108,18 +102,18 @@ claude-3-haiku
 ### Across branches
 
 ```bash
-poetry run unfck . --all-branches
-poetry run unfck . --only-main
+unfck . --all-branches
+unfck . --only-main
 ```
 
 ### Providing context with --why
 
 ```bash
 # Provide a global reason for all commits
-poetry run unfck last 3 --why "Fixing authentication bugs"
+unfck last 3 --why "Fixing authentication bugs"
 
 # Interactively prompt for a reason (once for multiple commits)
-poetry run unfck last 3 --ask-why
+unfck last 3 --ask-why
 ```
 
 ## 🔧 Configuration
@@ -163,8 +157,20 @@ All accessed via OpenRouter:
 Run automatically in pipelines:
 
 ```yaml
-- name: Install git-msg-unfck
-  run: pip install git-msg-unfck
+- name: Clone repository
+  uses: actions/checkout@v3
+  with:
+    repository: vic-cieslak/git-msg-unfck
+    path: git-msg-unfck
+
+- name: Install Poetry
+  run: curl -sSL https://install.python-poetry.org | python3 -
+
+- name: Build and install git-msg-unfck
+  run: |
+    cd git-msg-unfck
+    poetry build
+    pip install dist/git_msg_unfck-0.1.0.tar.gz
 
 - name: Fix last 5 commit messages
   run: unfck last 5 --just-fix-it --model claude-3.5
@@ -174,14 +180,11 @@ Run automatically in pipelines:
 
 ## 🖥️ Bash Alias
 
-If you installed via pip, the `unfck` command should already be available. However, if you want to create an alias for a specific installation, add this to ~/.bashrc or ~/.zshrc:
+After installing the package, the `unfck` command should be available in your terminal. If it's not in your PATH, you can create an alias in your ~/.bashrc or ~/.zshrc:
 
 ```bash
-# For pip installation (if not in PATH)
+# If the command is not in your PATH
 alias unfck='python3 -m git_msg_unfck'
-
-# For source installation
-# alias unfck='python3 ~/path/to/git-msg-unfck/unfck.py'
 ```
 
 Then you can run:
@@ -194,15 +197,24 @@ unfck last 3
 
 ## 🐳 Docker Usage
 
-You can create a simple Dockerfile that uses the PyPI package:
+You can use the provided Dockerfile to build and run the tool:
 
 ```dockerfile
 FROM python:3.10-slim
 
-# Install git-msg-unfck from PyPI
-RUN pip install git-msg-unfck
+# Install Poetry
+RUN pip install poetry
 
 # Set working directory
+WORKDIR /app
+
+# Copy project files
+COPY . /app/
+
+# Build and install the package
+RUN poetry build && pip install dist/git_msg_unfck-0.1.0.tar.gz
+
+# Set working directory for Git repositories
 WORKDIR /git
 
 # Default command
@@ -222,21 +234,7 @@ docker run -it --rm \
   git-msg-unfck last 5 --model gpt-4
 ```
 
-Or with docker-compose:
-
-```yaml
-# docker-compose.yml
-version: '3'
-services:
-  git-msg-unfck:
-    image: python:3.10-slim
-    volumes:
-      - .:/git
-    working_dir: /git
-    environment:
-      - OPENROUTER_API_KEY
-    entrypoint: sh -c "pip install git-msg-unfck && unfck"
-```
+Or use the provided docker-compose.yml:
 
 ```bash
 OPENROUTER_API_KEY=your-key docker-compose run git-msg-unfck last 3
