@@ -139,6 +139,12 @@ def process_commits(
     # Get the API key from config
     api_key = config.get("provider", {}).get("api_key")
     
+    # Get a global reason if ask_why is true and we have multiple commits
+    shared_reason = global_why
+    if ask_why and len(commit_hashes) > 1:
+        print(f"\nCommit: {commit_hashes[0][:7]} (and {len(commit_hashes)-1} more)")
+        shared_reason = input("Why did you make these changes? (optional): ").strip()
+    
     # Process each commit
     for commit_hash in commit_hashes:
         # Get commit information
@@ -158,10 +164,11 @@ def process_commits(
         
         # Get the reason for the commit
         reason = None
-        if ask_why:
+        if ask_why and len(commit_hashes) == 1:
+            # Only prompt individually for a single commit
             reason = prompt_for_reason(commit_hash)
-        elif global_why:
-            reason = global_why
+        else:
+            reason = shared_reason
         
         # Generate improved message
         print(f"\nGenerating improved message using {model}...")

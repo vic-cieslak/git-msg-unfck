@@ -95,7 +95,11 @@ poetry run unfck . --only-main
 ### Providing context with --why
 
 ```bash
+# Provide a global reason for all commits
 poetry run unfck last 3 --why "Fixing authentication bugs"
+
+# Interactively prompt for a reason (once for multiple commits)
+poetry run unfck last 3 --ask-why
 ```
 
 ## 🔧 Configuration
