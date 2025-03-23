@@ -59,15 +59,22 @@ pip install git-msg-unfck
 
 ### Interactive dry-run mode (default)
 
+Please in all commands with unfck pass OPENROUTER TOKEN like this:
+(to be improved)
+
+```bash
+OPENROUTER_API_KEY=sk.... unfck
+```
+
 ```bash
 # Process all commits in the current branch
-unfck .
+unfck
 ```
 
 ### No confirmation, just rewrite
 
 ```bash
-unfck . --just-fix-it
+unfck --just-fix-it
 ```
 
 ### Only fix last N commits
@@ -102,8 +109,8 @@ claude-3-haiku
 ### Across branches
 
 ```bash
-unfck . --all-branches
-unfck . --only-main
+unfck --all-branches
+unfck --only-main
 ```
 
 ### Providing context with --why
