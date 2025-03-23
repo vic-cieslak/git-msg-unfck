@@ -112,6 +112,20 @@ def is_head_commit(commit_hash: str) -> bool:
         return False
 
 
+def is_root_commit(commit_hash: str) -> bool:
+    """Check if the commit is the root commit (first commit in the repository)."""
+    try:
+        # Try to get the parent of the commit
+        result = subprocess.run(
+            ["git", "rev-parse", f"{commit_hash}^"],
+            capture_output=True, text=True, check=False
+        )
+        # If the command fails, it's the root commit
+        return result.returncode != 0
+    except Exception:
+        return False
+
+
 def clean_filter_branch_backup():
     """Clean up the filter-branch backup refs."""
     try:
@@ -223,12 +237,22 @@ def rewrite_past_commit(commit_hash: str, new_message: str) -> bool:
         # Create a filter command that replaces only the target commit's message
         filter_cmd = f'if [ "$GIT_COMMIT" = "{commit_hash}" ]; then cat {message_file}; else cat; fi'
         
+        # Check if this is the root commit (first commit in the repository)
+        is_root = is_root_commit(commit_hash)
+        
+        # For root commits, we need to use --root instead of commit_hash^..HEAD
+        if is_root:
+            print(f"Detected root commit {commit_hash[:7]}, using --root")
+            range_arg = "--root"
+        else:
+            range_arg = f"{commit_hash}^..HEAD"
+        
         # Use git filter-branch to rewrite the message (non-interactive)
         result = subprocess.run(
             [
                 "git", "filter-branch", "--force", "--msg-filter", 
                 filter_cmd,
-                f"{commit_hash}^..HEAD"
+                range_arg
             ],
             check=True,
             capture_output=True,
