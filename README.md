@@ -185,22 +185,6 @@ Run automatically in pipelines:
     OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
 ```
 
-## 🖥️ Bash Alias
-
-After installing the package, the `unfck` command should be available in your terminal. If it's not in your PATH, you can create an alias in your ~/.bashrc or ~/.zshrc:
-
-```bash
-# If the command is not in your PATH
-alias unfck='python3 -m git_msg_unfck'
-```
-
-Then you can run:
-
-```bash
-unfck .
-unfck . --just-fix-it
-unfck last 3
-```
 
 ## 🐳 Docker Usage (Limited)
 

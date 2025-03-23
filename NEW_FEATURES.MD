@@ -192,28 +192,60 @@ commit_parser = subparsers.add_parser("commit", help="Process a specific commit"
 commit_parser.add_argument("hash", help="The commit hash to process")
 ```
 
+### 10. Specify Repository Path
+
+**Problem:** Currently, the tool only operates on the Git repository in the current working directory.
+
+**Solution:**
+- Add a `--repo-path` option to specify a different repository path
+- Update Git utility functions to use the specified path
+- Allow running the tool on any Git repository without changing directories
+
+**Implementation:**
+```python
+# Add to CLI options for all subparsers
+for subparser in [current_parser, last_parser, first_parser, commit_parser]:
+    subparser.add_argument(
+        "--repo-path", type=str,
+        help="Path to the Git repository to process (default: current directory)"
+    )
+
+# Update Git utility functions
+def is_git_repo(repo_path=None):
+    """Check if the specified directory is a Git repository."""
+    path = repo_path or os.getcwd()
+    try:
+        subprocess.run(
+            ["git", "-C", path, "rev-parse", "--is-inside-work-tree"],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True,
+        )
+        return True
+    except subprocess.CalledProcessError:
+        return False
+```
+
 ---
 
 ## 💡 Additional Feature Ideas
 
-### 10. Commit Message Templates
+### 11. Commit Message Templates
 - Add support for conventional commits (feat, fix, docs, etc.)
 - Allow custom templates in config
 - Implement project-specific templates
 
-### 11. Pre-commit Hook Integration
+### 12. Pre-commit Hook Integration
 - Create a pre-commit hook that suggests better messages
 - Add installation command: `unfck install-hooks`
 
-### 12. Batch Processing with Different Models
+### 13. Batch Processing with Different Models
 - Allow processing different commits with different models
 - Implement model fallback for rate limiting
 
-### 13. Message Style Options
+### 14. Message Style Options
 - Add `--style` flag with options like "concise", "detailed", "conventional"
 - Customize prompt based on style
 
-### 14. Local LLM Support
+### 15. Local LLM Support
 - Add support for local LLMs via API
 - Implement offline mode with simpler heuristics
 
@@ -225,7 +257,8 @@ commit_parser.add_argument("hash", help="The commit hash to process")
 2. Remove quotes from messages (quick win)
 3. Improve "why" flag behavior (UX improvement)
 4. Add specific commit processing (feature request)
-5. Skip meaningful messages (efficiency)
-6. Token management (usability)
-7. Handle large diffs (robustness)
-8. User feedback system (long-term improvement)
+5. Specify repository path (usability)
+6. Skip meaningful messages (efficiency)
+7. Token management (usability)
+8. Handle large diffs (robustness)
+9. User feedback system (long-term improvement)
