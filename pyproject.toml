@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "git-msg-unfck"
+version = "0.1.0"
+description = "A CLI tool to improve Git commit messages using AI"
+authors = ["git-msg-unfck Contributors <your.email@example.com>"]
+readme = "README.md"
+packages = [{include = "src"}]
+
+[tool.poetry.dependencies]
+python = ">=3.8.1,<4.0"
+requests = "^2.28.0"
+gitpython = "^3.1.30"
+colorama = "^0.4.6"
+rich = "^13.0.0"
+python-dotenv = "^1.0.0"
+pyyaml = "^6.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.3.1"
+flake8 = "^6.0.0"
+
+[tool.poetry.scripts]
+unfck = "src.cli:main"
+unfck-test = "tests.integration_test:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

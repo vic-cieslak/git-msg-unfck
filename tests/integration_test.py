@@ -28,8 +28,8 @@ class GitMsgUnfckIntegrationTest(unittest.TestCase):
         # Create test files and make commits with poor messages
         self._create_test_commits()
         
-        # Path to the unfck script
-        self.unfck_path = Path(self.old_dir) / "unfck.py"
+        # Path to the project directory
+        self.project_dir = self.old_dir
     
     def tearDown(self):
         # Clean up
@@ -62,10 +62,11 @@ class GitMsgUnfckIntegrationTest(unittest.TestCase):
         """Test improving the last commit message."""
         print("\n\nTesting improvement of last commit message...")
         
-        # Run unfck on the last commit with Claude 3.7
+        # Run unfck on the last commit with Claude 3.7 using Poetry
+        os.chdir(self.project_dir)  # Change to project directory to use Poetry
         result = subprocess.run(
             [
-                self.unfck_path, 
+                "poetry", "run", "unfck", 
                 "last", "1", 
                 "--just-fix-it",
                 "--model", "anthropic/claude-3-7-sonnet-20240229"
@@ -74,6 +75,7 @@ class GitMsgUnfckIntegrationTest(unittest.TestCase):
             capture_output=True,
             text=True
         )
+        os.chdir(self.test_dir)  # Change back to test directory
         
         # Print the output for debugging
         print(f"Command output:\n{result.stdout}")
@@ -103,10 +105,11 @@ class GitMsgUnfckIntegrationTest(unittest.TestCase):
         """Test improving a commit message with a 'why' reason."""
         print("\n\nTesting improvement with 'why' context...")
         
-        # Run unfck on the second commit with a 'why' reason
+        # Run unfck on the second commit with a 'why' reason using Poetry
+        os.chdir(self.project_dir)  # Change to project directory to use Poetry
         result = subprocess.run(
             [
-                self.unfck_path, 
+                "poetry", "run", "unfck", 
                 "last", "2", 
                 "--just-fix-it",
                 "--model", "anthropic/claude-3-7-sonnet-20240229",
@@ -116,6 +119,7 @@ class GitMsgUnfckIntegrationTest(unittest.TestCase):
             capture_output=True,
             text=True
         )
+        os.chdir(self.test_dir)  # Change back to test directory
         
         # Print the output for debugging
         print(f"Command output:\n{result.stdout}")
@@ -156,6 +160,22 @@ def main():
     
     if not os.environ.get("OPENROUTER_API_KEY"):
         print("Error: OpenRouter API key must be provided via --api-key or OPENROUTER_API_KEY env var")
+        return 1
+    
+    # Check if Poetry is installed
+    try:
+        subprocess.run(["poetry", "--version"], check=True, stdout=subprocess.PIPE)
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        print("Error: Poetry is not installed")
+        print("Please install Poetry: curl -sSL https://install.python-poetry.org | python3 -")
+        return 1
+    
+    # Ensure dependencies are installed
+    print("Ensuring dependencies are installed...")
+    try:
+        subprocess.run(["poetry", "install"], check=True)
+    except subprocess.CalledProcessError:
+        print("Error: Failed to install dependencies with Poetry")
         return 1
     
     unittest.main(argv=['first-arg-is-ignored'])

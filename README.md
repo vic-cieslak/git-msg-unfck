@@ -29,29 +29,50 @@
 
 ## 🚀 Quick Usage
 
+### Installation with Poetry
+
+```bash
+# Install Poetry if you don't have it
+curl -sSL https://install.python-poetry.org | python3 -
+
+# Clone the repository
+git clone https://github.com/yourusername/git-msg-unfck.git
+cd git-msg-unfck
+
+# Install dependencies
+poetry install
+
+# Activate the Poetry shell (optional)
+poetry shell
+```
+
 ### Interactive dry-run mode (default)
 
 ```bash
+# Within Poetry shell
 unfck .
+
+# Or without activating the shell
+poetry run unfck .
 ```
 
 ### No confirmation, just rewrite
 
 ```bash
-unfck . --just-fix-it
+poetry run unfck . --just-fix-it
 ```
 
 ### Only fix last N commits
 
 ```bash
-unfck last 2
+poetry run unfck last 2
 ```
 
 ### Across branches
 
 ```bash
-unfck --all-branches
-unfck --only-main
+poetry run unfck --all-branches
+poetry run unfck --only-main
 ```
 
 ## 🔧 Configuration
