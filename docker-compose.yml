@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  git-msg-unfck:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/git
+    environment:
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+    # Pass all command line arguments to the container
+    # Usage: OPENROUTER_API_KEY=your-key docker-compose run git-msg-unfck last 5 --model gpt-4
+    entrypoint: ["unfck"]

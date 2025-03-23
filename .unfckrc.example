@@ -1,0 +1,34 @@
+[provider]
+# OpenRouter API key for accessing LLMs
+api_key = YOUR_OPENROUTER_API_KEY_HERE
+
+# Default model to use
+# Options: gpt-4, claude-3.5, claude-3.7, deepseek, etc.
+engine = gpt-4
+
+[defaults]
+# Whether to automatically apply changes without confirmation
+auto_apply = false
+
+# Whether to prompt for the reason behind each commit
+prompt_user_for_why = true
+
+# Default number of commits to process when using 'unfck last' without a number
+default_commit_count = 5
+
+[behavior]
+# Whether to show the diff when displaying commit information
+show_diff = true
+
+# Whether to skip merge commits
+skip_merge_commits = true
+
+# Whether to warn when operating on shared branches
+warn_on_shared_branches = true
+
+[formatting]
+# Use color in terminal output
+use_color = true
+
+# Message style: concise, descriptive, or detailed
+message_style = descriptive
