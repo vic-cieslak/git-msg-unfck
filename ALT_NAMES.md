@@ -15,6 +15,9 @@ When selecting a new name, we considered:
 
 -- commit-unfck
 -- commitmsg-ai-fix
+-- commit-msg-maestro
+-- git-msg-maestro 
+
 
 ### 1. `git-msg-ai`
 - **Pros**: Clear, professional, indicates AI usage

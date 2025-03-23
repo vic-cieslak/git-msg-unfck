@@ -1,6 +1,6 @@
 # 🧠 git-msg-unfck
 
-> If you're too lazy to write meaningful and useful commit messages while developing – this tool is for you.
+> I commit often, but writing proper messages slows me down or gets neglected..
 
 `git-msg-unfck` rewrites your recent Git commit messages by analyzing the diffs and generating clean, descriptive messages using AI models like Claude 3.5/3.7, GPT-4, DeepSeek, or your own local LLM.
 
