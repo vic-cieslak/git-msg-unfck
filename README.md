@@ -134,6 +134,41 @@ Or with docker-compose:
 OPENROUTER_API_KEY=your-key docker-compose run git-msg-unfck last 3
 ```
 
+## 🧪 Testing
+
+### Quick Test on Current Repository
+
+To quickly test the tool on your current repository, use the provided script:
+
+```bash
+# Make the script executable if needed
+chmod +x test-current-repo.sh
+
+# Run the test script with your OpenRouter API key
+OPENROUTER_API_KEY=your_key ./test-current-repo.sh
+```
+
+This will run the tool on the last commit in your current repository and show you the before and after commit messages.
+
+### Integration Tests
+
+The project includes integration tests that create a temporary Git repository, make commits with poor messages, and test the ability to improve them using the real OpenRouter API.
+
+To run the integration tests:
+
+```bash
+# Set the API key as an environment variable
+export OPENROUTER_API_KEY=your_openrouter_api_key
+
+# Run the test
+unfck-test
+
+# Or provide the API key directly
+unfck-test --api-key your_openrouter_api_key
+```
+
+Note: These tests make real API calls to OpenRouter using Claude 3.7, which will incur costs.
+
 ## 🛣️ Roadmap
 
 - Pre-commit hook integration
