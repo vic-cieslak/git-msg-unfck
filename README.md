@@ -202,7 +202,12 @@ unfck . --just-fix-it
 unfck last 3
 ```
 
-## 🐳 Docker Usage
+## 🐳 Docker Usage (Limited)
+
+> **Note**: Docker support has limitations. The tool will only operate on the Git repository that's mounted to the container. You cannot specify an external Git repository path like `/home/user/Git_repo` as the tool is designed to work only with the current working directory mounted at `/git` in the container.
+
+<!-- 
+Docker support is currently limited and commented out until full path support is implemented.
 
 You can use the provided Dockerfile to build and run the tool:
 
@@ -246,6 +251,7 @@ Or use the provided docker-compose.yml:
 ```bash
 OPENROUTER_API_KEY=your-key docker-compose run git-msg-unfck last 3
 ```
+-->
 
 ## 🧪 Testing
 
