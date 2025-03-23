@@ -34,7 +34,7 @@ echo "Original message: '$ORIGINAL_MSG'"
 
 # Run unfck on the last commit using Poetry
 echo -e "\nRunning git-msg-unfck on the last commit..."
-poetry run python unfck.py last 1 --just-fix-it --model anthropic/claude-3-7-sonnet-20240229
+poetry run python unfck.py last 1 --just-fix-it --model gpt-4
 
 # Get the new commit message
 NEW_MSG=$(git log -1 --pretty=%B)

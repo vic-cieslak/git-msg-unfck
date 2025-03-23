@@ -3,7 +3,7 @@
 api_key = YOUR_OPENROUTER_API_KEY_HERE
 
 # Default model to use
-# Options: gpt-4, claude-3.5, claude-3.7, deepseek, etc.
+# Options: gpt-4, gpt-3.5-turbo, claude-3-opus, claude-3-sonnet, claude-3-haiku, etc.
 engine = gpt-4
 
 [defaults]

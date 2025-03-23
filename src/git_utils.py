@@ -26,14 +26,15 @@ def get_commit_range(args: Any, config: Dict[str, Any]) -> List[str]:
     try:
         repo = git.Repo(os.getcwd())
         
-        # Handle 'last N' commits
-        if args.last:
-            count = int(args.last)
+        # Handle command selection
+        if args.command == "last":
+            # Handle 'last N' commits
+            count = args.count
             commits = list(repo.iter_commits('HEAD', max_count=count))
             return [commit.hexsha for commit in commits]
         
-        # Handle current branch
-        if args.current_branch:
+        elif args.command == ".":
+            # Handle current branch
             # Get the current branch name
             branch_name = repo.active_branch.name
             

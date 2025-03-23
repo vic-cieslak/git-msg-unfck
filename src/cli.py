@@ -17,58 +17,58 @@ def parse_args(args: List[str]) -> argparse.Namespace:
         prog="unfck"
     )
 
-    # Target selection
-    target_group = parser.add_mutually_exclusive_group(required=True)
-    target_group.add_argument(
-        ".", dest="current_branch", action="store_true",
-        help="Process all commits in the current branch"
-    )
-    target_group.add_argument(
-        "last", type=str, nargs="?",
-        help="Process the last N commits (e.g., 'last 5')"
-    )
+    # Create subparsers for different commands
+    subparsers = parser.add_subparsers(dest="command", required=True)
 
-    # Branch options
-    branch_group = parser.add_mutually_exclusive_group()
-    branch_group.add_argument(
-        "--all-branches", action="store_true",
-        help="Process commits across all branches"
-    )
-    branch_group.add_argument(
-        "--only-main", action="store_true",
-        help="Process commits only on the main/master branch"
-    )
+    # "." command for current branch
+    current_parser = subparsers.add_parser(".", help="Process all commits in the current branch")
 
-    # Behavior options
-    parser.add_argument(
-        "--just-fix-it", action="store_true",
-        help="Automatically apply changes without confirmation"
-    )
-    parser.add_argument(
-        "--ask-why", action="store_true",
-        help="Prompt for the reason behind each commit"
-    )
-    parser.add_argument(
-        "--why", type=str,
-        help="Provide a global reason for all commits"
-    )
-    parser.add_argument(
-        "--model", type=str,
-        help="Specify the AI model to use (e.g., gpt-4, claude-3.5)"
-    )
-    parser.add_argument(
-        "--dry-run", action="store_true",
-        help="Show what would be done without making changes"
-    )
+    # "last" command for processing last N commits
+    last_parser = subparsers.add_parser("last", help="Process the last N commits")
+    last_parser.add_argument("count", type=int, help="Number of commits to process")
+
+    # Add common options to both subparsers
+    for subparser in [current_parser, last_parser]:
+        # Branch options
+        branch_group = subparser.add_mutually_exclusive_group()
+        branch_group.add_argument(
+            "--all-branches", action="store_true",
+            help="Process commits across all branches"
+        )
+        branch_group.add_argument(
+            "--only-main", action="store_true",
+            help="Process commits only on the main/master branch"
+        )
+        
+        # Behavior options
+        subparser.add_argument(
+            "--just-fix-it", action="store_true",
+            help="Automatically apply changes without confirmation"
+        )
+        subparser.add_argument(
+            "--ask-why", action="store_true",
+            help="Prompt for the reason behind each commit"
+        )
+        subparser.add_argument(
+            "--why", type=str,
+            help="Provide a global reason for all commits"
+        )
+        subparser.add_argument(
+            "--model", type=str,
+            help="Specify the AI model to use (e.g., gpt-4, claude-3.5)"
+        )
+        subparser.add_argument(
+            "--dry-run", action="store_true",
+            help="Show what would be done without making changes"
+        )
 
     return parser.parse_args(args)
 
 
 def validate_args(args: argparse.Namespace) -> None:
     """Validate command line arguments."""
-    if args.last and not args.last.isdigit():
-        print(f"Error: 'last' argument must be a number, got '{args.last}'")
-        sys.exit(1)
+    # No validation needed for count as it's already enforced as int by argparse
+    pass
 
 
 def main() -> None:

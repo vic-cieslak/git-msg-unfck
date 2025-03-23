@@ -68,11 +68,34 @@ poetry run unfck . --just-fix-it
 poetry run unfck last 2
 ```
 
+### With specific model
+
+```bash
+poetry run unfck last 1 --model gpt-4
+```
+
+### Available models
+
+OpenRouter supports various models including:
+```
+gpt-4
+gpt-3.5-turbo
+claude-3-opus
+claude-3-sonnet
+claude-3-haiku
+```
+
 ### Across branches
 
 ```bash
-poetry run unfck --all-branches
-poetry run unfck --only-main
+poetry run unfck . --all-branches
+poetry run unfck . --only-main
+```
+
+### Providing context with --why
+
+```bash
+poetry run unfck last 3 --why "Fixing authentication bugs"
 ```
 
 ## 🔧 Configuration

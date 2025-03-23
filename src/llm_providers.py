@@ -16,23 +16,34 @@ class OpenRouterClient:
             raise ValueError("OpenRouter API key is required")
         
         self.base_url = "https://openrouter.ai/api/v1"
-        self.headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.api_key}",
-            "HTTP-Referer": "https://github.com/yourusername/git-msg-unfck",  # Update with your actual repo
-        }
     
     def get_available_models(self) -> Dict[str, Any]:
         """Get a list of available models from OpenRouter."""
         try:
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.api_key}",
+                "HTTP-Referer": "https://github.com/yourusername/git-msg-unfck",
+                "X-Title": "git-msg-unfck"
+            }
+            
+            print("[OpenRouter] Getting available models...")
             response = requests.get(
                 f"{self.base_url}/models",
-                headers=self.headers,
+                headers=headers,
             )
-            response.raise_for_status()
-            return response.json()
+            
+            if response.status_code == 200:
+                models = response.json()
+                print(f"[OpenRouter] Available models: {len(models.get('data', []))} models found")
+                return models
+            else:
+                print(f"[OpenRouter] Error getting models: Status {response.status_code}")
+                print(f"[OpenRouter] Response: {response.text[:200]}")
+                return {"data": []}
+                
         except requests.RequestException as e:
-            print(f"Error getting available models: {e}")
+            print(f"[OpenRouter] Error getting available models: {e}")
             return {"data": []}
     
     def generate_message(
@@ -44,8 +55,18 @@ class OpenRouterClient:
     ) -> Optional[str]:
         """Generate a message using the specified model."""
         try:
+            # Prepare headers with model included
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.api_key}",
+                "HTTP-Referer": "https://github.com/yourusername/git-msg-unfck",
+                "X-Title": "git-msg-unfck",
+                "model": model
+            }
+            
+            # Prepare payload
             payload = {
-                "model": model,
+                "model": model,  # Model specified in both headers and payload
                 "messages": [
                     {"role": "system", "content": "You are a senior software engineer with expertise in writing clear, concise, and informative Git commit messages."},
                     {"role": "user", "content": prompt},
@@ -54,23 +75,34 @@ class OpenRouterClient:
                 "max_tokens": max_tokens,
             }
             
+            print(f"[OpenRouter] Sending request to model: {model}")
             response = requests.post(
                 f"{self.base_url}/chat/completions",
-                headers=self.headers,
+                headers=headers,
                 json=payload,
             )
-            response.raise_for_status()
             
-            result = response.json()
-            if "choices" in result and len(result["choices"]) > 0:
-                return result["choices"][0]["message"]["content"].strip()
-            
-            return None
+            # Check response status
+            if response.status_code == 200:
+                result = response.json()
+                if "choices" in result and len(result["choices"]) > 0:
+                    content = result["choices"][0]["message"]["content"].strip()
+                    print(f"[OpenRouter] Successfully generated message ({len(content)} chars)")
+                    return content
+                else:
+                    print(f"[OpenRouter] No choices in response: {result}")
+                    return None
+            else:
+                print(f"[OpenRouter] Error status {response.status_code}: {response.text}")
+                return None
         
         except requests.RequestException as e:
-            print(f"Error generating message: {e}")
+            print(f"[OpenRouter] Error generating message: {e}")
             if hasattr(e, "response") and e.response is not None:
-                print(f"Response: {e.response.text}")
+                print(f"[OpenRouter] Response: {e.response.text}")
+            return None
+        except Exception as e:
+            print(f"[OpenRouter] Unexpected error: {e}")
             return None
 
 

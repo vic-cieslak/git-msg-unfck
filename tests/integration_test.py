@@ -69,7 +69,7 @@ class GitMsgUnfckIntegrationTest(unittest.TestCase):
                 "poetry", "run", "unfck", 
                 "last", "1", 
                 "--just-fix-it",
-                "--model", "anthropic/claude-3-7-sonnet-20240229"
+                "--model", "gpt-4"
             ],
             env={**os.environ, "OPENROUTER_API_KEY": self.api_key},
             capture_output=True,
@@ -112,7 +112,7 @@ class GitMsgUnfckIntegrationTest(unittest.TestCase):
                 "poetry", "run", "unfck", 
                 "last", "2", 
                 "--just-fix-it",
-                "--model", "anthropic/claude-3-7-sonnet-20240229",
+                "--model", "gpt-4",
                 "--why", "Fixing a critical bug in the authentication flow"
             ],
             env={**os.environ, "OPENROUTER_API_KEY": self.api_key},
