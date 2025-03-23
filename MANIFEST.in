@@ -1,0 +1,5 @@
+include README.md
+include LICENSE
+include .unfckrc.example
+include requirements.txt
+include test-current-repo.sh

@@ -4,6 +4,20 @@
 
 `git-msg-unfck` rewrites your recent Git commit messages by analyzing the diffs and generating clean, descriptive messages using AI models like Claude 3.5/3.7, GPT-4, DeepSeek, or your own local LLM.
 
+## 📦 Installation
+
+### Using pip (Recommended)
+
+```bash
+# Install from PyPI
+pip install git-msg-unfck
+
+# Or with user installation
+pip install --user git-msg-unfck
+```
+
+After installation, the `unfck` command will be available in your terminal.
+
 ---
 
 ## 💡 What It Does
@@ -29,7 +43,7 @@
 
 ## 🚀 Quick Usage
 
-### Installation with Poetry
+### Installation from Source (Development)
 
 ```bash
 # Install Poetry if you don't have it
@@ -149,6 +163,9 @@ All accessed via OpenRouter:
 Run automatically in pipelines:
 
 ```yaml
+- name: Install git-msg-unfck
+  run: pip install git-msg-unfck
+
 - name: Fix last 5 commit messages
   run: unfck last 5 --just-fix-it --model claude-3.5
   env:
@@ -157,10 +174,14 @@ Run automatically in pipelines:
 
 ## 🖥️ Bash Alias
 
-Add this to ~/.bashrc or ~/.zshrc:
+If you installed via pip, the `unfck` command should already be available. However, if you want to create an alias for a specific installation, add this to ~/.bashrc or ~/.zshrc:
 
 ```bash
-alias unfck='python3 ~/tools/git-msg-unfck/unfck.py'
+# For pip installation (if not in PATH)
+alias unfck='python3 -m git_msg_unfck'
+
+# For source installation
+# alias unfck='python3 ~/path/to/git-msg-unfck/unfck.py'
 ```
 
 Then you can run:
@@ -173,9 +194,28 @@ unfck last 3
 
 ## 🐳 Docker Usage
 
-Run with Docker:
+You can create a simple Dockerfile that uses the PyPI package:
+
+```dockerfile
+FROM python:3.10-slim
+
+# Install git-msg-unfck from PyPI
+RUN pip install git-msg-unfck
+
+# Set working directory
+WORKDIR /git
+
+# Default command
+ENTRYPOINT ["unfck"]
+```
+
+Build and run:
 
 ```bash
+# Build the Docker image
+docker build -t git-msg-unfck .
+
+# Run with Docker
 docker run -it --rm \
   -v $(pwd):/git \
   -e OPENROUTER_API_KEY=your-key \
@@ -183,6 +223,20 @@ docker run -it --rm \
 ```
 
 Or with docker-compose:
+
+```yaml
+# docker-compose.yml
+version: '3'
+services:
+  git-msg-unfck:
+    image: python:3.10-slim
+    volumes:
+      - .:/git
+    working_dir: /git
+    environment:
+      - OPENROUTER_API_KEY
+    entrypoint: sh -c "pip install git-msg-unfck && unfck"
+```
 
 ```bash
 OPENROUTER_API_KEY=your-key docker-compose run git-msg-unfck last 3

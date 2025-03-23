@@ -5,6 +5,23 @@ description = "A CLI tool to improve Git commit messages using AI"
 authors = ["git-msg-unfck Contributors <your.email@example.com>"]
 readme = "README.md"
 packages = [{include = "src"}]
+license = "MIT"
+repository = "https://github.com/yourusername/git-msg-unfck"
+homepage = "https://github.com/yourusername/git-msg-unfck"
+keywords = ["git", "commit", "message", "ai", "llm", "claude", "gpt", "openai"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Software Development :: Version Control :: Git",
+    "Topic :: Utilities"
+]
 
 [tool.poetry.dependencies]
 python = ">=3.8.1,<4.0"
