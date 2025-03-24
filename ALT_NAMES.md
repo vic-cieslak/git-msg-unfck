@@ -61,7 +61,8 @@ When selecting a new name, we considered:
 - `commit-forge`
 - `git-msg-wizard`
 - `commit-smith`
-
+- `ai-fix-git-history`
+  
 ## Command-Line Alias Considerations
 
 If the package name changes, consider the command alias:
