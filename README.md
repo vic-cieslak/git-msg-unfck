@@ -51,7 +51,8 @@ pip install git-msg-unfck
 - 🧑‍💻 Interactive mode (dry-run with confirmation)
 - 🤖 Fully automated mode (`--just-fix-it`)
 - 🌿 Multi-branch and CI/CD support
-- 🧩 Configurable via `.unfckrc`
+- 🧩 Configurable via `.unfckrc` with secure token management
+- 🔐 Secure API token storage with command-line management
 
 ---
 
@@ -59,16 +60,9 @@ pip install git-msg-unfck
 
 ### Interactive dry-run mode (default)
 
-Please in all commands with unfck pass OPENROUTER TOKEN like this:
-(to be improved)
-
-```bash
-OPENROUTER_API_KEY=sk.... unfck
-```
-
 ```bash
 # Process all commits in the current branch
-unfck
+unfck .
 ```
 
 ### No confirmation, just rewrite
@@ -125,6 +119,8 @@ unfck last 3 --ask-why
 
 ## 🔧 Configuration
 
+### Configuration File
+
 Add a config file at ~/.unfckrc:
 
 ```ini
@@ -137,7 +133,32 @@ auto_apply = false
 prompt_user_for_why = true
 ```
 
-You can also override settings via CLI flags.
+See the `.unfckrc.example` file for all available options.
+
+### Configuration Commands
+
+You can manage your configuration using the following commands:
+
+```bash
+# Set your OpenRouter API token
+unfck config set-token YOUR_API_KEY
+
+# View your current token (masked for security)
+unfck config get-token
+
+# Set any configuration value
+unfck config set provider engine claude-3-opus
+unfck config set defaults auto_apply true
+unfck config set behavior remove_quotes false
+
+# Get a specific configuration value
+unfck config get provider engine
+
+# List all configuration values
+unfck config list
+```
+
+You can also override settings via CLI flags for individual commands.
 
 ## 🧠 How It Works
 
@@ -244,11 +265,14 @@ OPENROUTER_API_KEY=your-key docker-compose run git-msg-unfck last 3
 To quickly test the tool on your current repository, use the provided script:
 
 ```bash
+# First, set your API token (if you haven't already)
+unfck config set-token YOUR_OPENROUTER_API_KEY
+
 # Make the script executable if needed
 chmod +x test-current-repo.sh
 
-# Run the test script with your OpenRouter API key
-OPENROUTER_API_KEY=your_key ./test-current-repo.sh
+# Run the test script
+./test-current-repo.sh
 ```
 
 This will run the tool on the last commit in your current repository and show you the before and after commit messages.
@@ -260,14 +284,15 @@ The project includes integration tests that create a temporary Git repository, m
 To run the integration tests:
 
 ```bash
-# Set the API key as an environment variable
-export OPENROUTER_API_KEY=your_openrouter_api_key
+# First, set your API token (if you haven't already)
+unfck config set-token YOUR_OPENROUTER_API_KEY
 
 # Run the test
 unfck-test
 
-# Or provide the API key directly
-unfck-test --api-key your_openrouter_api_key
+# Or you can still use environment variables if preferred
+export OPENROUTER_API_KEY=your_openrouter_api_key
+unfck-test
 ```
 
 Note: These tests make real API calls to OpenRouter using Claude 3.7, which will incur costs.
