@@ -2,8 +2,9 @@
 
 import os
 import configparser
+import stat
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Tuple
 
 
 def get_config_path() -> Path:
@@ -74,6 +75,30 @@ def load_config() -> Dict[str, Any]:
     return config
 
 
+def validate_token(token: str) -> Tuple[bool, str]:
+    """Validate the OpenRouter API token format.
+    
+    Returns:
+        Tuple[bool, str]: (is_valid, message)
+    """
+    # Basic validation - OpenRouter tokens typically start with "sk-or-"
+    if not token.startswith("sk-or-"):
+        return False, "Token doesn't match expected OpenRouter format (should start with 'sk-or-')"
+    
+    # Check minimum length
+    if len(token) < 20:
+        return False, "Token is too short to be valid"
+        
+    return True, "Token format is valid"
+
+
+def mask_token(token: str) -> str:
+    """Mask the token for display purposes."""
+    if not token or len(token) <= 10:
+        return "****"
+    return f"{token[:4]}...{token[-4:]}"
+
+
 def save_config(config: Dict[str, Any], path: Optional[Path] = None) -> None:
     """Save configuration to file."""
     if path is None:
@@ -90,3 +115,125 @@ def save_config(config: Dict[str, Any], path: Optional[Path] = None) -> None:
     # Write to file
     with open(path, "w") as f:
         parser.write(f)
+
+
+def save_config_secure(config: Dict[str, Any], path: Optional[Path] = None) -> None:
+    """Save configuration with secure file permissions."""
+    # Save the config
+    save_config(config, path)
+    
+    if path is None:
+        path = get_config_path()
+    
+    # Set secure permissions (readable/writable only by the owner)
+    try:
+        os.chmod(path, stat.S_IRUSR | stat.S_IWUSR)  # 0o600
+    except Exception as e:
+        print(f"Warning: Could not set secure permissions on config file: {e}")
+
+
+def set_token(token: str) -> Tuple[bool, str]:
+    """Set the OpenRouter API token in the configuration.
+    
+    Returns:
+        Tuple[bool, str]: (success, message)
+    """
+    # Validate the token
+    is_valid, message = validate_token(token)
+    if not is_valid:
+        return False, f"Invalid token: {message}"
+    
+    # Load existing config
+    config = load_config()
+    
+    # Update the token
+    config["provider"]["api_key"] = token
+    
+    # Save with secure permissions
+    try:
+        save_config_secure(config)
+        return True, f"Token {mask_token(token)} saved successfully"
+    except Exception as e:
+        return False, f"Failed to save token: {e}"
+
+
+def get_token() -> Tuple[Optional[str], str]:
+    """Get the OpenRouter API token from the configuration.
+    
+    Returns:
+        Tuple[Optional[str], str]: (token, message)
+    """
+    config = load_config()
+    token = config.get("provider", {}).get("api_key")
+    
+    if not token:
+        return None, "No API token configured. Use 'unfck config set-token' to set one."
+    
+    return token, f"Current token: {mask_token(token)}"
+
+
+def set_config_value(section: str, key: str, value: str) -> Tuple[bool, str]:
+    """Set a configuration value.
+    
+    Returns:
+        Tuple[bool, str]: (success, message)
+    """
+    # Load existing config
+    config = load_config()
+    
+    # Ensure section exists
+    if section not in config:
+        return False, f"Invalid section: {section}"
+    
+    # Convert value to appropriate type
+    if value.lower() in ("true", "yes", "1"):
+        typed_value = True
+    elif value.lower() in ("false", "no", "0"):
+        typed_value = False
+    elif value.isdigit():
+        typed_value = int(value)
+    else:
+        typed_value = value
+    
+    # Update the value
+    config[section][key] = typed_value
+    
+    # Save the config
+    try:
+        save_config(config)
+        return True, f"Set {section}.{key} = {value}"
+    except Exception as e:
+        return False, f"Failed to save configuration: {e}"
+
+
+def get_config_value(section: str, key: str) -> Tuple[Optional[Any], str]:
+    """Get a configuration value.
+    
+    Returns:
+        Tuple[Optional[Any], str]: (value, message)
+    """
+    config = load_config()
+    
+    if section not in config:
+        return None, f"Invalid section: {section}"
+    
+    if key not in config[section]:
+        return None, f"Key '{key}' not found in section '{section}'"
+    
+    value = config[section][key]
+    return value, f"{section}.{key} = {value}"
+
+
+def list_config() -> Dict[str, Dict[str, Any]]:
+    """List all configuration values.
+    
+    Returns:
+        Dict[str, Dict[str, Any]]: The configuration dictionary
+    """
+    config = load_config()
+    
+    # Mask the API key if present
+    if "provider" in config and "api_key" in config["provider"] and config["provider"]["api_key"]:
+        config["provider"]["api_key"] = mask_token(config["provider"]["api_key"])
+    
+    return config

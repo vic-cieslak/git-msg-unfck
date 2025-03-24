@@ -41,26 +41,6 @@ if args.force_push and not dry_run:
 
 ---
 
-## ✨ Feature Enhancements
-
-### 2. Remove Double Quotes from Commit Messages
-
-**Problem:** Generated messages sometimes contain unnecessary quotes.
-
-**Solution:**
-- Add a post-processing step to clean up generated messages
-- Implement a configurable message formatter
-
-**Implementation:**
-```python
-def clean_message(message: str) -> str:
-    """Remove unnecessary quotes and formatting from commit messages."""
-    # Remove surrounding quotes if present
-    if message.startswith('"') and message.endswith('"'):
-        message = message[1:-1]
-    return message
-```
-
 ### 3. "Why" Flag Improvements
 
 **Problem:** The "why" context is valuable but optional.
@@ -101,6 +81,9 @@ config_subparsers = config_parser.add_subparsers(dest="config_command")
 token_parser = config_subparsers.add_parser("set-token", help="Set the OpenRouter API token")
 token_parser.add_argument("token", help="Your OpenRouter API token")
 ```
+
+Consider where the token should be stored for persistance after user pip install this package.
+
 
 ### 5. Skip Meaningful Messages
 

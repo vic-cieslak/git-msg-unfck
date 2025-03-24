@@ -1,37 +1,49 @@
 [provider]
 # OpenRouter API key for accessing LLMs
+# You can set this with: unfck config set-token YOUR_API_KEY
+# Or view it with: unfck config get-token
 api_key = YOUR_OPENROUTER_API_KEY_HERE
 
 # Default model to use
 # Options: gpt-4, gpt-3.5-turbo, claude-3-opus, claude-3-sonnet, claude-3-haiku, etc.
+# You can set this with: unfck config set provider engine claude-3-opus
 engine = gpt-4
 
 [defaults]
 # Whether to automatically apply changes without confirmation
+# You can set this with: unfck config set defaults auto_apply true
 auto_apply = false
 
 # Whether to prompt for the reason behind each commit
+# You can set this with: unfck config set defaults prompt_user_for_why true
 prompt_user_for_why = true
 
 # Default number of commits to process when using 'unfck last' without a number
+# You can set this with: unfck config set defaults default_commit_count 10
 default_commit_count = 5
 
 [behavior]
 # Whether to show the diff when displaying commit information
+# You can set this with: unfck config set behavior show_diff false
 show_diff = true
 
 # Whether to skip merge commits
+# You can set this with: unfck config set behavior skip_merge_commits false
 skip_merge_commits = true
 
 # Whether to warn when operating on shared branches
+# You can set this with: unfck config set behavior warn_on_shared_branches false
 warn_on_shared_branches = true
 
 # Whether to remove surrounding quotes from commit messages
+# You can set this with: unfck config set behavior remove_quotes false
 remove_quotes = true
 
 [formatting]
 # Use color in terminal output
+# You can set this with: unfck config set formatting use_color false
 use_color = true
 
 # Message style: concise, descriptive, or detailed
+# You can set this with: unfck config set formatting message_style concise
 message_style = descriptive

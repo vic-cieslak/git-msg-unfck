@@ -4,8 +4,13 @@ import argparse
 import os
 import sys
 from typing import List, Optional
+from pathlib import Path
 
-from .config import load_config
+from .config import (
+    load_config, save_config, get_config_path,
+    set_token, get_token, validate_token,
+    set_config_value, get_config_value, list_config
+)
 from .git_utils import get_commit_range, is_git_repo
 from .message_generator import process_commits
 
@@ -30,6 +35,28 @@ def parse_args(args: List[str]) -> argparse.Namespace:
     # "first" command for processing first N commits
     first_parser = subparsers.add_parser("first", help="Process the first N commits (oldest first)")
     first_parser.add_argument("count", type=int, help="Number of commits to process")
+    
+    # "config" command for configuration management
+    config_parser = subparsers.add_parser("config", help="Configure the tool")
+    config_subparsers = config_parser.add_subparsers(dest="config_command", required=True)
+    
+    # Token management
+    token_set_parser = config_subparsers.add_parser("set-token", help="Set the OpenRouter API token")
+    token_set_parser.add_argument("token", help="Your OpenRouter API token")
+    
+    token_get_parser = config_subparsers.add_parser("get-token", help="Display the current token (masked)")
+    
+    # General configuration
+    config_set_parser = config_subparsers.add_parser("set", help="Set a configuration value")
+    config_set_parser.add_argument("section", help="Configuration section (provider, defaults, behavior, formatting)")
+    config_set_parser.add_argument("key", help="Configuration key")
+    config_set_parser.add_argument("value", help="Configuration value")
+    
+    config_get_parser = config_subparsers.add_parser("get", help="Get a configuration value")
+    config_get_parser.add_argument("section", help="Configuration section (provider, defaults, behavior, formatting)")
+    config_get_parser.add_argument("key", help="Configuration key")
+    
+    config_list_parser = config_subparsers.add_parser("list", help="List all configuration values")
 
     # Add common options to all subparsers
     for subparser in [current_parser, last_parser, first_parser]:
@@ -75,14 +102,60 @@ def validate_args(args: argparse.Namespace) -> None:
     pass
 
 
+def handle_config_command(args: argparse.Namespace) -> None:
+    """Handle the config command and its subcommands."""
+    if args.config_command == "set-token":
+        success, message = set_token(args.token)
+        if success:
+            print(message)
+        else:
+            print(f"Error: {message}")
+            sys.exit(1)
+    
+    elif args.config_command == "get-token":
+        token, message = get_token()
+        print(message)
+        if not token:
+            sys.exit(1)
+    
+    elif args.config_command == "set":
+        success, message = set_config_value(args.section, args.key, args.value)
+        if success:
+            print(message)
+        else:
+            print(f"Error: {message}")
+            sys.exit(1)
+    
+    elif args.config_command == "get":
+        value, message = get_config_value(args.section, args.key)
+        if value is not None:
+            print(message)
+        else:
+            print(f"Error: {message}")
+            sys.exit(1)
+    
+    elif args.config_command == "list":
+        config = list_config()
+        print("Current configuration:")
+        for section, values in config.items():
+            print(f"\n[{section}]")
+            for key, value in values.items():
+                print(f"{key} = {value}")
+
+
 def main() -> None:
     """Main entry point for the CLI."""
-    # Load configuration
-    config = load_config()
-
     # Parse command line arguments
     args = parse_args(sys.argv[1:])
     validate_args(args)
+    
+    # Handle config commands
+    if args.command == "config":
+        handle_config_command(args)
+        return
+    
+    # Load configuration
+    config = load_config()
 
     # Check if we're in a Git repository
     if not is_git_repo():
