@@ -76,6 +76,14 @@ def prompt_for_action(original_message: str, improved_message: str) -> str:
         print("Invalid choice. Please enter y, n, e, or s.")
 
 
+def clean_message(message: str) -> str:
+    """Remove unnecessary quotes and formatting from commit messages."""
+    # Remove surrounding quotes if present
+    if message.startswith('"') and message.endswith('"'):
+        message = message[1:-1]
+    return message
+
+
 def edit_message(message: str) -> str:
     """Allow the user to edit a message."""
     # Create a temporary file with the message
@@ -184,6 +192,10 @@ def process_commits(
             print(colorize("Error: Could not generate improved message", "red"))
             continue
         
+        # Clean the message by removing unnecessary quotes if configured
+        if config.get("behavior", {}).get("remove_quotes", True):
+            improved_message = clean_message(improved_message)
+        
         # Handle the improved message
         if auto_apply:
             if dry_run:
@@ -208,6 +220,9 @@ def process_commits(
             
             elif action == "e":
                 edited_message = edit_message(improved_message)
+                # Clean the edited message as well if configured
+                if config.get("behavior", {}).get("remove_quotes", True):
+                    edited_message = clean_message(edited_message)
                 if dry_run:
                     print(f"\n{colorize('Would apply edited message:', 'green')} {edited_message}")
                 else:

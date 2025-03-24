@@ -26,6 +26,9 @@ skip_merge_commits = true
 # Whether to warn when operating on shared branches
 warn_on_shared_branches = true
 
+# Whether to remove surrounding quotes from commit messages
+remove_quotes = true
+
 [formatting]
 # Use color in terminal output
 use_color = true

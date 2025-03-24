@@ -34,6 +34,7 @@ def load_config() -> Dict[str, Any]:
     config["behavior"]["show_diff"] = True
     config["behavior"]["skip_merge_commits"] = True
     config["behavior"]["warn_on_shared_branches"] = True
+    config["behavior"]["remove_quotes"] = True
     config["formatting"]["use_color"] = True
     config["formatting"]["message_style"] = "descriptive"
     config["provider"]["engine"] = "gpt-4"
