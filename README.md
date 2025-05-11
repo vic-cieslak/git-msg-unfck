@@ -59,32 +59,32 @@ pip install git-msg-unfck
 ## 🚀 Quick Usage
 
 ### Interactive dry-run mode (default)
-
+changes in git working directory wont let program finish updating git tree, tokens are lost [critical]
 ```bash
 # Process all commits in the current branch
 unfck .
 ```
 
 ### No confirmation, just rewrite
-
+changes in git working directory wont let program finish updating git tree, tokens are lost [critical]
 ```bash
 unfck --just-fix-it
 ```
 
 ### Only fix last N commits
-
+changes in git working directory wont let program finish updating git tree, tokens are lost [critical]
 ```bash
 unfck last 2
 ```
 
 ### Process first N commits (oldest first)
-
+changes in git working directory wont let program finish updating git tree, tokens are lost [critical]
 ```bash
 unfck first 5
 ```
 
 ### With specific model
-
+changes in git working directory wont let program finish updating git tree, tokens are lost [critical]
 ```bash
 unfck last 1 --model gpt-4
 ```
